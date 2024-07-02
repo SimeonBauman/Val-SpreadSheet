@@ -14,12 +14,13 @@ options.add_argument("user-data-dir=C:/Users/simeo/AppData/Local/Google/Chrome/U
 driver = webdriver.Chrome(service = service,options=options)
    
 # Navigate to the website   
-base_url = "https://tracker.gg/valorant"
+base_url = "https://google.com"
 
 driver.get(base_url)  
+html_source = driver.page_source 
 
 while(True):
-    html_source = driver.page_source   
+      
     soup = BeautifulSoup(html_source, 'html.parser') 
     print(soup.findAll(class_="trn-ign__username"))
     time.sleep(5)
