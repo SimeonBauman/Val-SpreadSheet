@@ -1,4 +1,6 @@
-file_path = r'ValStats.txt'
+import xlwt
+from xlwt import Workbook 
+
 SpecialCharacter = r'SpecialCharacter.txt'
 
 class Map:
@@ -27,7 +29,7 @@ def getSpecialCharacter():
         line_list = [item.rstrip() for item in line_list]
         return line_list
 
-def getData():
+def getData(file_path):
     with open(file_path) as file:
         line_list = file.readlines()
         line_list = [item.rstrip() for item in line_list]
@@ -42,11 +44,14 @@ def getTeam(data, player):
             return "Def"
         i = i - 1
 
-def getMap(map,maps):
-    i = 0
-    while i < len(maps) - 1:
-        if maps[i].name == map: return i
-        i += 1
+def getMap(data,maps):
+    i = data.index("Normal")
+    while data[i] == "Normal":
+        i+=1
+    j = 0
+    while j < len(maps):
+        if maps[j].name == data[i]: return j
+        j += 1
         
 def getTotalRounds(data,maps,team, mapIndex):
     t1 = int(data[data.index("Team A") + 1])
@@ -78,37 +83,56 @@ def getSplitRounds(data, map, totalRounds, team,sp):
         index += 3
         i += 1
 
-def printResults(map,Maps):
-    print(Maps[map].name)
-    print(Maps[map].wins)
-    print(Maps[map].losses)
-    print(Maps[map].DefWin)
-    print(Maps[map].DefLoss)
-    print(Maps[map].AtkWin)
-    print(Maps[map].AtkLoss)
+def ClearMap(data):
+    while data[0] !="/?/":
+        data.pop(0)
+    data.pop(0)
+
+def printResults(Maps):
+    for map in Maps:
+        print(map.name)
+        print(map.wins)
+        print(map.losses)
+        print(map.DefWin)
+        print(map.DefLoss)
+        print(map.AtkWin)
+        print(map.AtkLoss)
+
+def createSpeadSheet(Maps,path): 
+    wb = Workbook() 
+    sheet1 = wb.add_sheet('Sheet 1') 
+    i = 0 
+    for map in Maps:
+        sheet1.write(0,i,map.name)
+        sheet1.write(1,i,map.wins)
+        sheet1.write(2,i,map.losses)
+        sheet1.write(3,i,str(map.DefWin) + "-" + str(map.DefLoss))
+        sheet1.write(4,i,str(map.AtkWin) + "-" + str(map.AtkLoss))
+        sheet1.write(5,i,str(map.AtkWin + map.DefWin) + "-" + str(map.AtkLoss + map.DefLoss))
+        i += 1
+    wb.save("finalized.xls")
+       
 
 
 def main():
     sp = getSpecialCharacter()
-    maps = [Map("Abyss"), Map("Ascent")]
+    maps = [Map("Abyss"), Map("Ascent"), Map("Breeze"), Map("Bind"), Map("Fracture"), Map("Haven"), Map("Icebox"), Map("Lotus"), Map("Pearl"), Map("Split"), Map("Sunset")]
     team = ""
     mapIndex = -1
     totalRounds = 0
-    data = getData()
-    team = getTeam(data, "CUW Lock")
-    mapIndex = getMap(data[2],maps)
-    totalRounds = getTotalRounds(data,maps,team,mapIndex)
-    getSplitRounds(data,maps[mapIndex],totalRounds, team,sp)
-    printResults(mapIndex,maps)
+    IGN = input("Enter IGN\n")
+    file_path = "Stats\\" + input("Enter File Name\n") + ".txt"
+    data = getData(file_path)
+    while len(data) > 0:
+        team = getTeam(data, IGN)
+        mapIndex = getMap(data,maps)
+        totalRounds = getTotalRounds(data,maps,team,mapIndex)
+        getSplitRounds(data,maps[mapIndex],totalRounds, team,sp)
+        ClearMap(data)
+    printResults(maps)
+    createSpeadSheet(maps, file_path)
     
     
 if __name__=="__main__": 
     main() 
-    
-
-
-    
-
-
-
     
